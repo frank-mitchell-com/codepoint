@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="JSONPP - JSON Pull Parser"default="all">
+<project name="Codepoint - Unicode input and output" default="all">
 
   <target name="all" depends="test,jar,docjar" />
 

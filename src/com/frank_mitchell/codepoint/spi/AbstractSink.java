@@ -33,8 +33,7 @@ public abstract class AbstractSink implements CodePointSink {
 
     @Override
     public void putCharSequence(CharSequence seq) throws IOException {
-        PrimitiveIterator.OfInt iter
-            = seq.codePoints().iterator();
+        PrimitiveIterator.OfInt iter = seq.codePoints().iterator();
         while (iter.hasNext()){
             putCodePoint(iter.nextInt());
         }
