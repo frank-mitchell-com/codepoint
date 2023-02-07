@@ -56,12 +56,6 @@ public final class ReaderSource implements CodePointSource {
 
     @Override
     public int getCodePoint() {
-        /*
-         * TODO: The user shouldn't be able to call this method
-         * before calling next(), and yet they do. That's why
-         * _lastChar is set to ' '. Fixing this will require
-         * rewriting DefaultJsonLexer, though. 
-         */
         synchronized (getLock()) {
             if (_lastChar < 0) {
                 throw new IllegalStateException("have not called next() yet");

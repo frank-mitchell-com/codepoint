@@ -8,13 +8,14 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 /**
- * A {@link Sink} that wraps a {@link Writer}.
+ * A {@link CodePointSink} that wraps a {@link Writer}.
  *
  * @author Frank Mitchell
  */
 public class WriterSink extends AbstractSink {
 
     private final Writer _writer;
+    private final boolean _littleEndian;
 
     /**
      * Wrap this object around a writer.
@@ -22,7 +23,18 @@ public class WriterSink extends AbstractSink {
      * @param writer the writer
      */
     public WriterSink(Writer writer) {
+        this(writer, StandardCharsets.UTF_16BE);
+    }
+
+     /**
+     * Wrap this object around a writer.
+     *
+     * @param writer the writer
+     * @param cs the charset this object is writing
+     */
+    public WriterSink(final Writer writer, final Charset cs) {
         _writer = writer;
+        _littleEndian = (cs == StandardCharsets.UTF_16LE);
     }
 
     /**
@@ -41,7 +53,7 @@ public class WriterSink extends AbstractSink {
      * @param cs the character set for outgoing bytes
      */
     public WriterSink(OutputStream os, Charset cs) {
-        this(new OutputStreamWriter(os, cs));
+        this(new OutputStreamWriter(os, cs), cs);
     }
 
     private Object getLock() {
@@ -53,8 +65,10 @@ public class WriterSink extends AbstractSink {
         synchronized (getLock()) {
             if (cp <= 0xFFFF) {
                 _writer.write(cp);
+            } else if (_littleEndian) {
+                _writer.write(Character.lowSurrogate(cp));
+                _writer.write(Character.highSurrogate(cp));
             } else {
-                // TODO: should we worry about endianness?
                 _writer.write(Character.highSurrogate(cp));
                 _writer.write(Character.lowSurrogate(cp));
             }
@@ -70,5 +84,4 @@ public class WriterSink extends AbstractSink {
     public void close() throws IOException {
         _writer.close();
     }
-
 }
