@@ -63,13 +63,9 @@ A `ByteBuffer` implementation is in the works.
 
 This class offers a selection of methods to write code points, including:
 
+- One `int` at a time.
 - Through the `Appendable` interface.
-- One `int` at a time.
-- As a `CharSequence` (`String`, `StringBuffer`, `CharBuffer`, etc.)
-- As a `char` array.
-- As an `int` array.
-- One `char` at a time (through `Appendable`)
-- One `int` at a time.
+- As an `IntStream`, which is how  Appendable` does it.
 
 It also has the obligatory `flush()` and `close()` methods, like any
 `Writer` or `OutputStream`.
@@ -77,8 +73,8 @@ It also has the obligatory `flush()` and `close()` methods, like any
 The current implementation wraps a `Writer`.
 A `ByteBuffer` implementation is in the works.
 
-Most of these methods work through `AbstractSink`, so a new `CodePoint`
-implementation needs only subclass that and implement 
+Most of these methods have default implementations so a new `CodePoint`
+implementation needs only implement 
 `putCodePoint(int)`, `flush()`, and `close()`.
 The `char`-methods all translate UTF-16 sequences to code points.
 

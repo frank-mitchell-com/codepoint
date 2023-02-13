@@ -24,32 +24,65 @@
 package com.frank_mitchell.codepoint.test;
 
 import com.frank_mitchell.codepoint.CodePointSink;
-import com.frank_mitchell.codepoint.spi.ByteBufferSink;
-import java.nio.ByteBuffer;
+import com.frank_mitchell.codepoint.spi.StringBufferSink;
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.nio.charset.StandardCharsets;
-import org.junit.Ignore;
 
 /**
  * @author fmitchell
  *
  */
-@Ignore("don't understand ByteBuffers yet")
-public class ByteBufferSinkTest extends CodePointSinkTest {
+public class CodePointSinkTest {
 
-    @Override
+    private CodePointSink _sink;
+    protected Object _store;
+    
     protected CodePointSink createSink(Object store) {
-        return new ByteBufferSink((ByteBuffer) store, StandardCharsets.UTF_8);
+        return new StringBufferSink((StringBuffer) store, StandardCharsets.UTF_16);
     }
 
-    @Override
     protected Object createBackingStore() {
-        return ByteBuffer.allocate(1000);
+        return new StringBuffer();
+    }
+    
+    protected String getOutput() {
+        return _store.toString();
     }
 
-    @Override
-    protected String getOutput() {
-        final ByteBuffer buffer = (ByteBuffer)_store;
-        // TODO: Is this right?
-        return buffer.toString();
+    /**
+     * @throws java.lang.Exception
+     */
+    @Before
+    public void setUp() throws Exception {
+        _store = createBackingStore();
+        _sink = createSink(_store);
     }
- }
+
+    /**
+     * @throws java.lang.Exception
+     */
+    @After
+    public void tearDown() throws Exception {
+        _store = null;
+        _sink = null;
+    }
+
+    @Test
+    public void testPutCodePoint() throws IOException {
+        String seq = "\u3041";
+
+        _sink.putCodePoint(seq.codePointAt(0));
+
+        assertEquals(seq, getOutput());
+    }
+    
+    // TODO: Put multiple code points
+    // TODO: Test something off the BMP, i.e. > 0x10000
+}

@@ -21,36 +21,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.frank_mitchell.codepoint.spi;
+package com.frank_mitchell.codepoint;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.nio.charset.Charset;
 
 /**
+ * An annotation on a {@link CodePointSource} or {@link CodePointSink} that
+ * informs a @{CodePointClassManager} that its instances work on a specific character set.
+ * For example, a Source might be optimized to read only UTF-8 (and, by extension,
+ * ASCII), so it would set {@code ForCharsets("UTF-8")}.  A second annotation for
+ * ASCII would be helpful but not necessary, as the Manager infers ASCII from
+ * UTF-8.
  * 
  * @author Frank Mitchell
  */
-final class CharWrapper implements CharSequence {
-    private final int    len;
-    private final char[] cbuf;
-    private final int    offset;
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ForCharsets {
 
-    CharWrapper(int len, char[] cbuf, int offset) {
-        this.len = len;
-        this.cbuf = cbuf;
-        this.offset = offset;
-    }
-
-    @Override
-    public char charAt(int index) {
-        return cbuf[offset + index];
-    }
-
-    @Override
-    public int length() {
-        return len;
-    }
-
-    @Override
-    public CharSequence subSequence(int start, int end) {
-        int newlen = len + start - end;
-        return new CharWrapper(newlen, cbuf, offset + start);
-    }
+    /**
+     * Denotes the name of a {@link Charset}s this object handles.
+     * A name should pass {@link Charset#checkName(java.lang.String)}.
+     * 
+     * @return the name of {@link Charset}s a Source or Sink handles
+     */
+    String[] names();
 }

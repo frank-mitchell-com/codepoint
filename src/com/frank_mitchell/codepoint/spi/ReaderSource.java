@@ -21,35 +21,48 @@
  */
 package com.frank_mitchell.codepoint.spi;
 
+import com.frank_mitchell.codepoint.CodePointSource;
+import com.frank_mitchell.codepoint.ForCharsets;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.UTFDataFormatException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-import com.frank_mitchell.codepoint.CodePointSource;
-
+/**
+ * A {@link CodePointSource} that wraps a {@link Reader}.
+ * 
+ * @author fmitchell
+ */
 public final class ReaderSource implements CodePointSource {
 
     private final Reader _reader;
     private int _lastChar;
     private int _nextChar;
 
+    @ForCharsets(names={"UTF-16","UTF-16BE","UTF-16LE"})
     public ReaderSource(Reader r) throws IOException {
+        this(r, StandardCharsets.UTF_16);
+    }
+
+    public ReaderSource(Reader r, Charset cs) throws IOException {
+        // TODO: Not using the charset
         _reader = r;
         _lastChar = -1;
         _nextChar = -1;
     }
-    
+
     public ReaderSource(InputStream s) throws IOException {
         this(s, StandardCharsets.UTF_8);
     }
-    
+
     public ReaderSource(InputStream s, Charset e) throws IOException {
         this(new InputStreamReader(s, e));
     }
-    
+
     private Object getLock() {
         return this;
     }
@@ -77,18 +90,38 @@ public final class ReaderSource implements CodePointSource {
     @Override
     public void next() throws IOException {
         synchronized (getLock()) {
+            int cp;
             if (_nextChar > 0) {
-                _lastChar = _nextChar;
+                cp = _nextChar;
             } else {
-                _nextChar = _reader.read();
+                cp = _reader.read();
             }
+            if (cp >= 0 && Character.isSurrogate((char)cp)) {
+                cp = toCodePoint(cp, _reader.read());
+            }
+            _lastChar = cp;
             _nextChar = -1;
-            /*
-             * TODO: If _lastChar is part of a multi-byte UTF-16
-             * code point, read the next char and decode them.
-             * We are reading code points, after all.
-             */
         }
+    }
+
+    private int toCodePoint(int c1, int c2) throws UTFDataFormatException, EOFException {
+        int cp;
+        if (c2 < 0) {
+            throw new EOFException("Incomplete surrogate pair: "
+                    + Integer.toHexString(c2));
+        }
+        if (Character.isHighSurrogate((char)c1)
+                && Character.isLowSurrogate((char)c2)) {
+            cp = Character.toCodePoint((char)c1, (char)c2);
+        } else if (Character.isHighSurrogate((char)c2)
+                && Character.isLowSurrogate((char)c1)) {
+            cp = Character.toCodePoint((char)c2, (char)c1);
+        } else {
+            throw new UTFDataFormatException("Mismatched surrogate pair: "
+                    + Integer.toHexString(c1) + " "
+                    + Integer.toHexString(c2));
+        }
+        return cp;
     }
 
     @Override

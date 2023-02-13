@@ -25,57 +25,54 @@ package com.frank_mitchell.codepoint.spi;
 
 import com.frank_mitchell.codepoint.CodePointSink;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
-import java.nio.charset.CharsetEncoder;
-import java.nio.charset.CoderResult;
+import java.nio.charset.StandardCharsets;
 
 /**
- * Writes code points to a {@link ByteBuffer}.
+ * A {@link CodePointSink} that wraps a {@link StringBuffer}.
  *
- * @author fmitchell
+ * @author Frank Mitchell
  */
-public class ByteBufferSink implements CodePointSink {
-    private final ByteBuffer _buf;
-    private final CharBuffer _cbuf;
-    private final CharsetEncoder _enc;
+public class StringBufferSink implements CodePointSink {
 
-    public ByteBufferSink(ByteBuffer b, Charset cs) {
-        _buf = b;
-        _cbuf = CharBuffer.allocate(b.capacity());
-        _enc = cs.newEncoder();
+    private final StringBuffer _buffer;
+    private final boolean _littleEndian;
+
+     /**
+     * Wrap this object around a writer.
+     *
+     * @param b the buffer
+     * @param cs the charset this object is writing
+     */
+    public StringBufferSink(final StringBuffer b, final Charset cs) {
+        _buffer = b;
+        _littleEndian = (cs == StandardCharsets.UTF_16LE);
+    }
+
+    private Object getLock() {
+        return this;
     }
 
     @Override
     public void putCodePoint(int cp) throws IOException {
-        boolean endofinput = false;
-        if (Character.isBmpCodePoint(cp)) {
-            _cbuf.put((char)cp);
-        } else {
-            int[] iarray = { cp };
-            String str = new String(iarray, 0, iarray.length);
-            _cbuf.put(str);
-        }
-        writeToByteBuf(endofinput);
-    }
-
-    private void writeToByteBuf(boolean endofinput) throws CharacterCodingException {
-        CoderResult result = _enc.encode(_cbuf, _buf, endofinput);
-        if (result.isError()) {
-            result.throwException();
+        synchronized (getLock()) {
+            if (cp <= 0xFFFF) {
+                _buffer.append((char)cp);
+            } else if (_littleEndian) {
+                _buffer.append(Character.lowSurrogate(cp));
+                _buffer.append(Character.highSurrogate(cp));
+            } else {
+                _buffer.append(Character.highSurrogate(cp));
+                _buffer.append(Character.lowSurrogate(cp));
+            }
         }
     }
 
     @Override
     public void flush() throws IOException {
-        writeToByteBuf(true);
     }
 
     @Override
     public void close() throws IOException {
-        flush();
     }
-
 }

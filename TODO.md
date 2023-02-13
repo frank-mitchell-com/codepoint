@@ -4,22 +4,22 @@
 
 ## Interface
 
-- Add a "factory" or two to select a CodePointSource or CodePointSink
-  based on the type of standard Java input or output type?
-  All the cool Java programmers are doing it.
-
 - Add more bulk read methods to CodePointSource, implemented through
   `default` methods and/or an abstract class.
 
+- CodePointSequence interface, parallel to CharSequence?
+
 ## Implementation
+
+- Implement the service and reflection code for CodePoint.
+  Right now it's just hardcoded to serve JSONPP.
 
 - Get ByteBufferSource and ByteBufferSink working, once I understand
   ByteBuffers better.
 
 - Add Sources and Sinks for CharBuffers and IntBuffers?
 
-- Move/copy the Utf8Source from **jsonpp** to this project, once it's
-  working.
+- Implement CodePointSequence interface if it exists.
 
 - Look at Java 17 and Java 19 for additional input and output classes.
   (Maybe some that makes this whole library obsolete?)

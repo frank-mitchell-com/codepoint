@@ -24,6 +24,7 @@
 package com.frank_mitchell.codepoint.spi;
 
 import com.frank_mitchell.codepoint.CodePointSource;
+import com.frank_mitchell.codepoint.ForCharsets;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -34,8 +35,8 @@ import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Wraps an IntStream with Unicode code points.
- * 
+ * Wraps an {@link ByteBuffer} with Unicode code points.
+ *
  * @author Frank Mitchell
  */
 public class ByteBufferSource implements CodePointSource {
@@ -44,49 +45,52 @@ public class ByteBufferSource implements CodePointSource {
     private final CharBuffer _cbuf;
     private boolean _atstart;
     private int _codepoint;
-    
+
     /**
      * Create an instance for UTF-8 bytes
-     * 
+     *
      * @param bb array of UTF-8 bytes
      */
+    @ForCharsets(names={"ASCII","UTF-8"})
     public ByteBufferSource(byte[] bb) {
         this(ByteBuffer.wrap(bb), StandardCharsets.UTF_8);
     }
-    
+
     /**
      * Create an instance for UTF-8 bytes
-     * 
+     *
      * @param bb      array of UTF-8 bytes
      * @param offset  offset at which to start
      * @param length  length at which to end
      */
+    @ForCharsets(names={"ASCII","UTF-8"})
     public ByteBufferSource(byte[] bb, int offset, int length) {
         this(ByteBuffer.wrap(bb, offset, length), StandardCharsets.UTF_8);
     }
-    
+
     /**
      * Create an instance for UTF-8 bytes
-     * 
+     *
      * @param b  bytes to decode
      */
+    @ForCharsets(names={"ASCII","UTF-8"})
     public ByteBufferSource(ByteBuffer b) {
         this(b, StandardCharsets.UTF_8);
     }
-    
+
     /**
      * Create an instance for an arbitrary charset
-     * 
+     *
      * @param bb array of encoded bytes
      * @param cs encoding of the bytes
      */
     public ByteBufferSource(byte[] bb, Charset cs) {
         this(ByteBuffer.wrap(bb), cs);
     }
-    
+
     /**
      * Create an instance for an arbitrary charset
-     * 
+     *
      * @param bb      array of encoded bytes
      * @param offset  offset at which to start
      * @param length  length at which to end
@@ -95,10 +99,10 @@ public class ByteBufferSource implements CodePointSource {
     public ByteBufferSource(byte[] bb, int offset, int length, Charset cs) {
         this(ByteBuffer.wrap(bb, offset, length), cs);
     }
-    
+
     /**
      * Create an instance for an arbitrary Charset.
-     * 
+     *
      * @param b  bytes to decode
      * @param cs expected character set
      */
@@ -111,7 +115,7 @@ public class ByteBufferSource implements CodePointSource {
         _codepoint = -1;
         _atstart = true;
     }
-    
+
     @Override
     public int getCodePoint() {
         synchronized (this) {

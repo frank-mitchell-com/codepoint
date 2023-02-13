@@ -24,23 +24,25 @@
 package com.frank_mitchell.codepoint.spi;
 
 import com.frank_mitchell.codepoint.CodePointSource;
+import com.frank_mitchell.codepoint.ForCharsets;
 import java.io.IOException;
 
 /**
- * Wraps an arbitrary CharSequence, from a {@link String} to a 
+ * Wraps an arbitrary CharSequence, from a {@link String} to a
  * {@link CharBuffer}.
- * 
+ *
  * @author Frank Mitchell
  */
 public class CharSequenceSource implements CodePointSource {
     private final CharSequence _seq;
     private int _pos;
-    
+
+    @ForCharsets(names={"UTF-16","UTF-16BE"})
     public CharSequenceSource(CharSequence s) {
         _seq = s;
         _pos = -1;
     }
-    
+
     @Override
     public int getCodePoint() {
         synchronized (this) {

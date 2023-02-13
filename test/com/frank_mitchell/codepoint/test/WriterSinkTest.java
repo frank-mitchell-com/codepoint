@@ -1,108 +1,49 @@
-/**
- * 
+/*
+ * The MIT License
+ *
+ * Copyright 2023 fmitchell.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  */
 package com.frank_mitchell.codepoint.test;
 
 import com.frank_mitchell.codepoint.CodePointSink;
-import static org.junit.Assert.*;
-
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.PrimitiveIterator;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
 import com.frank_mitchell.codepoint.spi.WriterSink;
+import java.io.StringWriter;
 
 /**
  * @author fmitchell
  *
  */
-public class WriterSinkTest {
+public class WriterSinkTest extends CodePointSinkTest {
 
-    private CodePointSink _sink;
-    private StringWriter _buf;
-    
-    /**
-     * @throws java.lang.Exception
-     */
-    @Before
-    public void setUp() throws Exception {
-        _buf = new StringWriter();
-        _sink = new WriterSink(_buf);
+    @Override
+    protected CodePointSink createSink(Object store) {
+        return new WriterSink((StringWriter) store);
     }
 
-    /**
-     * @throws java.lang.Exception
-     */
-    @After
-    public void tearDown() throws Exception {
-        _buf = null;
-        _sink = null;
-    }
-
-    @Test
-    public void testPutChars() throws IOException {
-        String seq = "this is a test";
-
-        _sink.putChars(seq.toCharArray(), 0, seq.length());
-
-        assertEquals(seq, getOutput());
-    }
-
-    @Test
-    public void testPutCharSequence() throws IOException {
-        String seq = "this is a test";
-
-        _sink.putCharSequence(seq);
-
-        assertEquals(seq, getOutput());
-    }
-
-    @Test
-    public void testPutCodePoint() throws IOException {
-        String seq = "\u3041";
-
-        _sink.putCodePoint(seq.codePointAt(0));
-
-        assertEquals(seq, getOutput());
-    }
-    
-    // TODO: Should test something off the BMP, i.e. > 0x10000
-    
-    @Test
-    public void testPutCodePoints() throws IOException {
-        String seq = "\u3041\u3042\u3044\u3043";
-
-        int[] cpa = copyCodePoints(seq);
-        
-        _sink.putCodePoints(cpa, 0, cpa.length);
-
-        assertEquals(seq, getOutput());
+    @Override
+    protected Object createBackingStore() {
+        return new StringWriter();
     }
 
     protected String getOutput() {
-        return _buf.toString();
-    }
-    
-    /**
-     * Copy the code points from a String to an array.
-     * 
-     * @param seq the String to turn into code points
-     * @return an array of code points
-     */
-    protected int[] copyCodePoints(String seq) {
-        // I hope there's a better way to do this ...
-        int len = seq.codePointCount(0, seq.length());
-        int[] result = new int[len];
-        int i = 0;
-
-        PrimitiveIterator.OfInt iter = seq.codePoints().iterator();
-        while (iter.hasNext()) {
-            result[i++] = iter.nextInt();
-        }
-        return result;
+        return _store.toString();
     }
 }
