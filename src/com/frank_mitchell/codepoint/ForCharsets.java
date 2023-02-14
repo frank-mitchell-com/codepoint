@@ -29,12 +29,13 @@ import java.nio.charset.Charset;
 
 /**
  * An annotation on a {@link CodePointSource} or {@link CodePointSink} that
- * informs a @{CodePointClassManager} that its instances work on a specific character set.
- * For example, a Source might be optimized to read only UTF-8 (and, by extension,
- * ASCII), so it would set {@code ForCharsets("UTF-8")}.  A second annotation for
- * ASCII would be helpful but not necessary, as the Manager infers ASCII from
- * UTF-8.
- * 
+ * informs {@link CodePoint} that its instances only work on
+ * specific character set.
+ * For example, a Source might be optimized to read only UTF-8 (and, by
+ * extension, ASCII), so it would set {@code ForCharsets("UTF-8")}.
+ * Listing "ASCII" would be helpful but not necessary, as {@code CodePoint}
+ * infers ASCII from UTF-8.
+ *
  * @author Frank Mitchell
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -43,7 +44,7 @@ public @interface ForCharsets {
     /**
      * Denotes the name of a {@link Charset}s this object handles.
      * A name should pass {@link Charset#checkName(java.lang.String)}.
-     * 
+     *
      * @return the name of {@link Charset}s a Source or Sink handles
      */
     String[] names();
