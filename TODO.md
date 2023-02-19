@@ -12,6 +12,7 @@
 ## Implementation
 
 - Implement the service and reflection code for CodePoint.
+  (I mean so that one can prove it works.)
   Right now it's just hardcoded to serve JSONPP.
 
 - Get ByteBufferSource and ByteBufferSink working, once I understand
@@ -27,4 +28,10 @@
 ## Testing
 
 - Add more tests for possible hiccups and error conditions.
+
+## Documentation
+
+- Sample code of CodePointSource.
+
+- More documentation and examples of CodePointSink.
 

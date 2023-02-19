@@ -43,7 +43,9 @@ used thusly.
         source.next();
         int c = source.getCodePoint();
         // do something with the code point
+
 ...
+
     }
     source.close();
 
