@@ -1,6 +1,29 @@
+/*
+ * Copyright 2023 Frank Mitchell
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ */
 package com.frank_mitchell.codepoint;
 
-import com.frank_mitchell.codepoint.spi.*;
+import com.frank_mitchell.codepoint.spi.CharSequenceSource;
+import com.frank_mitchell.codepoint.spi.ReaderSource;
+import com.frank_mitchell.codepoint.spi.WriterSink;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -112,10 +135,14 @@ public class CodePoint {
     private static Set<Charset> set(Charset... charsets) {
         return new CopyOnWriteArraySet<>(Arrays.asList(charsets));
     }
+    
+    public static <T> CodePointSource getSource(T obj, Charset cs) throws IOException {
+        return getSource((Class<T>)obj.getClass(), obj, cs);
+    }
 
     public static <T> CodePointSource getSource(Class<T> clz, T obj, Charset cs) throws IOException {
         Constructor<? extends CodePointSource> cons
-                = getConstructor(CodePointSource.class, _sourcesByClass, cs, clz);
+                = getConstructor(_sourcesByClass, cs, clz);
         if (cons == null) {
             // exception or null??
             throw new IllegalStateException("Constructor " + cons
@@ -152,8 +179,7 @@ public class CodePoint {
     }
 
     private static <S, T> Constructor<? extends S> getConstructor(
-            Class<S> stype,
-            Map<Class<?>, Set<ConstructorRecord<S>>> map,
+            Map<Class<?>, Set<ConstructorRecord<S>>> map, 
             Charset cs, 
             Class<T> type)
             throws IOException {
@@ -288,9 +314,18 @@ public class CodePoint {
         return new ReaderSource(obj, cs);
     }
 
+    public static CodePointSource getSource(CharSequence obj, Charset cs) throws IOException {
+        // assume cs is "UTF-16" or "UTF-16BE"
+        return new CharSequenceSource(obj);
+    }
+
+    public static <T> CodePointSink getSink(T obj, Charset cs) throws IOException {
+        return getSink((Class<T>)obj.getClass(), obj, cs);
+    }
+
     public static <T> CodePointSink getSink(Class<T> clz, T obj, Charset cs) throws IOException {
         Constructor<? extends CodePointSink> cons
-                = getConstructor(CodePointSink.class, _sinksByClass, cs, clz);
+                = getConstructor(_sinksByClass, cs, clz);
         if (cons == null) {
             // exception or null??
             throw new IllegalStateException("Constructor " + cons
@@ -316,8 +351,8 @@ public class CodePoint {
         tmpmap.put("sinks", _sinksByClass);
         tmpmap.put("implies", _implies);
 
-        Writer writer = new FileWriter(file);
-        writer.write(tmpmap.toString());
-        writer.close();
+        try (Writer writer = new FileWriter(file)) {
+            writer.write(tmpmap.toString());
+        }
     }
 }
