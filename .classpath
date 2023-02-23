@@ -7,7 +7,6 @@
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
-	<classpathentry kind="lib" path="dist/codepoint.jar"/>
 	<classpathentry kind="lib" path="lib/CopyLibs/org-netbeans-modules-java-j2seproject-copylibstask.jar"/>
 	<classpathentry kind="lib" path="lib/hamcrest/hamcrest-core-1.3.jar"/>
 	<classpathentry kind="lib" path="lib/junit_4/junit-4.13.2-javadoc.jar"/>
