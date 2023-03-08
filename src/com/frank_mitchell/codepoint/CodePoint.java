@@ -45,6 +45,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 /**
  * Determines a {@link CodePointSource} or {@link CodePointSink} for a given
@@ -65,7 +68,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * @author Frank Mitchell
  */
 public class CodePoint {
-
+    
     public static final String CONFIG_DIR = "/META-INF/codepoint";
     public static final String SOURCES_FILE = CONFIG_DIR + "/sources.conf";
     public static final String SINKS_FILE = CONFIG_DIR + "/sinks.conf";
@@ -136,6 +139,7 @@ public class CodePoint {
         return new CopyOnWriteArraySet<>(Arrays.asList(charsets));
     }
     
+    @SuppressWarnings("unchecked")
     public static <T> CodePointSource getSource(T obj, Charset cs) throws IOException {
         return getSource((Class<T>)obj.getClass(), obj, cs);
     }
@@ -243,8 +247,11 @@ public class CodePoint {
             if (comment > 0) {
                 line = line.substring(0, comment);
             }
-            String[] names = line.strip().split("\\s+");
+            String[] names = line.split("\\s+");
             for (String s : names) {
+                if (s.length() == 0) {
+                    continue;
+                }
                 try {
                     Class<?> clz = loader.loadClass(s);
                     if (CodePointSource.class.isAssignableFrom(clz)) {
@@ -254,13 +261,14 @@ public class CodePoint {
                         collectConstructors(clz, _sinksByClass);
                     }
                 } catch (ClassNotFoundException e) {
-                    // should log this or something
+                    log("Loading", s, e);
                 }
             }
             line = reader.readLine();
         }
     }
 
+    @SuppressWarnings("unchecked")
     private static <S,W> void collectConstructors(final Class<?> klass, 
             final Map<Class<?>, Set<ConstructorRecord<S>>> classmap) throws SecurityException {
 
@@ -284,7 +292,15 @@ public class CodePoint {
                 }
             }
         } catch (SecurityException e) {
-            // we should log this ...
+            log("Reading constructors", klass.getCanonicalName(), e);
+        }
+    }
+    
+    private static void log(String where, String name, Exception e) {
+        Logger log = LogManager.getLogManager().getLogger(CodePoint.class.getName());
+        Level level = Level.WARNING;
+        if (log.isLoggable(level)) {
+            log.log(level, where + " " + name, e);
         }
     }
 
@@ -319,6 +335,7 @@ public class CodePoint {
         return new CharSequenceSource(obj);
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> CodePointSink getSink(T obj, Charset cs) throws IOException {
         return getSink((Class<T>)obj.getClass(), obj, cs);
     }
