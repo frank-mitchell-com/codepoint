@@ -33,7 +33,7 @@ import java.io.IOException;
  *
  * @author Frank Mitchell
  */
-public class CharSequenceSource implements CodePointSource {
+class CharSequenceSource implements CodePointSource {
     private final CharSequence _seq;
     private int _pos;
 

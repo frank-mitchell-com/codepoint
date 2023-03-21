@@ -37,7 +37,7 @@ import java.nio.charset.CoderResult;
  *
  * @author fmitchell
  */
-public class ByteBufferSink implements CodePointSink {
+class ByteBufferSink implements CodePointSink {
     private final ByteBuffer _buf;
     private final CharBuffer _cbuf;
     private final CharsetEncoder _enc;

@@ -21,4 +21,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.frank_mitchell.codepoint.test;
+package com.frank_mitchell.codepoint.spi;
+
+import com.frank_mitchell.codepoint.CodePointSink;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import org.junit.Ignore;
+
+/**
+ * @author fmitchell
+ *
+ */
+@Ignore("don't understand ByteBuffers yet")
+public class ByteBufferSinkTest extends CodePointSinkTest {
+
+    @Override
+    protected CodePointSink createSink(Object store) {
+        return new ByteBufferSink((ByteBuffer) store, StandardCharsets.UTF_8);
+    }
+
+    @Override
+    protected Object createBackingStore() {
+        return ByteBuffer.allocate(1000);
+    }
+
+    @Override
+    protected String getOutput() {
+        final ByteBuffer buffer = (ByteBuffer)_store;
+        // TODO: Is this right?
+        return buffer.toString();
+    }
+ }

@@ -21,72 +21,73 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.frank_mitchell.codepoint.test;
+package com.frank_mitchell.codepoint.spi;
 
 import com.frank_mitchell.codepoint.CodePointSource;
-import com.frank_mitchell.codepoint.spi.ReaderSource;
 import java.io.*;
-import static org.junit.Assert.assertTrue;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import org.junit.Assert;
 
 /**
  *
  * @author fmitchell
  */
-public class ReaderSourceTest extends CodePointSourceTest {
+public final class AsciiSourceTest extends CodePointSourceTest {
 
     @Override
     public Object createBackingStore() {
-        return new StringBuilder();
+        return new FakeInputStream();
     }
 
     @Override
-    public CodePointSource createCodePointSource(Object store) throws IOException {
-        // Can't use a mock object because Reader is a class, so ...
-        return new ReaderSource(new FakeReader((CharSequence) store));
+    public CodePointSource createCodePointSource(Object store) {
+        return new AsciiSource((InputStream) store);
     }
 
     @Override
     public void push(String text) {
-        ((StringBuilder) _store).append(text);
+        ((FakeInputStream)_store).append(text);
     }
+ 
 
-    public static class FakeReader extends Reader {
+    public static class FakeInputStream extends InputStream {
         /*
          * The parser likes to read one or two characters ahead, so we'll give
          * it some whitespace until we have real contents.
          */
-        final CharSequence _input;
-        boolean _closed = false;
-        int _pos = 0;
-
-        public FakeReader(CharSequence cs) {
-            _input = cs;
-        }
-
-        @Override
-        public int read(char[] chars, int off, int len) throws IOException {
-
-            assertTrue("not closed", !_closed);
-            if (_pos >= _input.length()) {
-                return -1;
-            } else {
-                /*
-                 * I *could* figure out the maximum chars I can safely read,
-                 * but the implementation only reads one at a time anyway,
-                 * so ...
-                 */
-                chars[off] = _input.charAt(_pos);
-                _pos += 1;
-                return 1;
-            }
-        }
+        private boolean _closed = false;
+        private byte[] _buffer = new byte[8];
+        private int _length = 0;
+        private int _pos = 0;
 
         @Override
         public void close() throws IOException {
             _closed = true;
         }
-    }
-    
-    // TODO: Throw an exception from inside the Reader.
 
+        @Override
+        public int read() throws IOException {
+            Assert.assertFalse("closed", _closed);
+            Assert.assertTrue("beyond end of byte array", _pos < _buffer.length);
+            if (_closed || _pos >= _length) {
+                return -1;
+            } else {
+                Assert.assertTrue("beyond last byte written", _pos < _length);
+                int result = _buffer[_pos];
+                _pos++;        // I like to increment separately; sue me.
+                return result;
+            }
+        }
+        
+        protected void append(String text) {
+            byte[] newbytes = text.getBytes(StandardCharsets.UTF_8);
+            final int newlength = _length + newbytes.length;
+            if (newlength > _buffer.length) {
+                _buffer = Arrays.copyOf(_buffer, newlength * 2);
+            }
+            System.arraycopy(newbytes, 0, _buffer, _length, newbytes.length);
+            _length = newlength;
+        }
+    }
 }

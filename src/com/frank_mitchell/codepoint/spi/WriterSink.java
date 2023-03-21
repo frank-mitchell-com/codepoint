@@ -37,7 +37,7 @@ import java.nio.charset.StandardCharsets;
  *
  * @author Frank Mitchell
  */
-public class WriterSink implements CodePointSink {
+class WriterSink implements CodePointSink {
 
     private final Writer _writer;
     private final boolean _littleEndian;

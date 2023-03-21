@@ -39,7 +39,7 @@ import java.nio.charset.StandardCharsets;
  *
  * @author Frank Mitchell
  */
-public class ByteBufferSource implements CodePointSource {
+class ByteBufferSource implements CodePointSource {
     private final ByteBuffer _buf;
     private final CharsetDecoder _dec;
     private final CharBuffer _cbuf;

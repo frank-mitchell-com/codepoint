@@ -35,7 +35,7 @@ import com.frank_mitchell.codepoint.ForCharsets;
  * It's fastest if the stream is pure ASCII, but it can handle multi-byte
  * UTF-8 characters correctly, if not efficiently.
  */
-public class AsciiSource implements CodePointSource {
+class AsciiSource implements CodePointSource {
     private final InputStream _input;
     private int _current = -1;
     private int _next = -1;

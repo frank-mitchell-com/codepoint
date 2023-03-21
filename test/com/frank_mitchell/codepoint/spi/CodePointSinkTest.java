@@ -21,10 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.frank_mitchell.codepoint.test;
+package com.frank_mitchell.codepoint.spi;
 
 import com.frank_mitchell.codepoint.CodePointSink;
-import com.frank_mitchell.codepoint.spi.StringBufferSink;
 import static org.junit.Assert.*;
 
 import java.io.IOException;

@@ -21,11 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.frank_mitchell.codepoint.test;
+package com.frank_mitchell.codepoint.spi;
 
 import java.io.*;
 import com.frank_mitchell.codepoint.CodePointSource;
-import com.frank_mitchell.codepoint.spi.CharSequenceSource;
 import java.util.PrimitiveIterator;
 import org.junit.After;
 import static org.junit.Assert.assertEquals;

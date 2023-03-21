@@ -21,36 +21,4 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.frank_mitchell.codepoint.test;
-
-import com.frank_mitchell.codepoint.CodePointSource;
-import com.frank_mitchell.codepoint.spi.ByteBufferSource;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import org.junit.Ignore;
-
-/**
- *
- * @author fmitchell
- */
-@Ignore("don't understand ByteBuffers yet")
-public class ByteBufferSourceTest extends CodePointSourceTest {
-
-    @Override
-    public Object createBackingStore() {
-        ByteBuffer buf = ByteBuffer.allocate(1000);
-        return buf;
-    }
-
-    @Override
-    public CodePointSource createCodePointSource(Object store) throws IOException {
-        return new ByteBufferSource((ByteBuffer)store);
-    }
-
-    @Override
-    public void push(String text) {
-        ByteBuffer buf = (ByteBuffer)_store;
-        buf.put(text.getBytes());
-        buf.flip();
-    }
-}
+package com.frank_mitchell.codepoint.spi;

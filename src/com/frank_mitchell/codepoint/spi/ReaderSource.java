@@ -37,7 +37,7 @@ import java.nio.charset.StandardCharsets;
  * 
  * @author fmitchell
  */
-public final class ReaderSource implements CodePointSource {
+final class ReaderSource implements CodePointSource {
 
     private final Reader _reader;
     private int _lastChar;

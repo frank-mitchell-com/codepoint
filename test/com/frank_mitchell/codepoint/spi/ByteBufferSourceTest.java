@@ -21,29 +21,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.frank_mitchell.codepoint.test;
+package com.frank_mitchell.codepoint.spi;
 
-import com.frank_mitchell.codepoint.CodePointSink;
-import com.frank_mitchell.codepoint.spi.WriterSink;
-import java.io.StringWriter;
+import com.frank_mitchell.codepoint.CodePointSource;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import org.junit.Ignore;
 
 /**
- * @author fmitchell
  *
+ * @author fmitchell
  */
-public class WriterSinkTest extends CodePointSinkTest {
+@Ignore("don't understand ByteBuffers yet")
+public class ByteBufferSourceTest extends CodePointSourceTest {
 
     @Override
-    protected CodePointSink createSink(Object store) {
-        return new WriterSink((StringWriter) store);
+    public Object createBackingStore() {
+        ByteBuffer buf = ByteBuffer.allocate(1000);
+        return buf;
     }
 
     @Override
-    protected Object createBackingStore() {
-        return new StringWriter();
+    public CodePointSource createCodePointSource(Object store) throws IOException {
+        return new ByteBufferSource((ByteBuffer)store);
     }
 
-    protected String getOutput() {
-        return _store.toString();
+    @Override
+    public void push(String text) {
+        ByteBuffer buf = (ByteBuffer)_store;
+        buf.put(text.getBytes());
+        buf.flip();
     }
 }

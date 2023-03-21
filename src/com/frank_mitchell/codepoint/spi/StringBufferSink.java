@@ -33,7 +33,7 @@ import java.nio.charset.StandardCharsets;
  *
  * @author Frank Mitchell
  */
-public class StringBufferSink implements CodePointSink {
+class StringBufferSink implements CodePointSink {
 
     private final StringBuffer _buffer;
     private final boolean _littleEndian;
