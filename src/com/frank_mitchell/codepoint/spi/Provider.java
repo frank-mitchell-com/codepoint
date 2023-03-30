@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2023 fmitchell.
+ * Copyright 2023 Frank Mitchell.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,8 +27,6 @@ import com.frank_mitchell.codepoint.CodePointProvider;
 import com.frank_mitchell.codepoint.CodePointSink;
 import com.frank_mitchell.codepoint.CodePointSource;
 import com.frank_mitchell.codepoint.ForCharsets;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -42,9 +40,9 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -214,15 +212,12 @@ public final class Provider implements CodePointProvider {
         return first == null ? null : first.getConstructor();
     }
 
-    /**
-     *
-     * @param clz the value of clz
-     * @param obj the value of obj
-     * @param cs the value of cs
-     * @throws IOException
-     */
     @Override
-    public <T> CodePointSource getSource(Class<T> clz, T obj, Charset cs) throws IOException {
+    public <T> CodePointSource getSource(Class<T> clz, T in, Charset cs) throws IOException {
+        Objects.requireNonNull(clz);
+        Objects.requireNonNull(in);
+        Objects.requireNonNull(cs);
+
         if (!_sourcesByClass.containsKey(clz)) {
             // is this the right loader?
             readConfiguration(clz.getClassLoader());
@@ -230,9 +225,9 @@ public final class Provider implements CodePointProvider {
         Constructor<? extends CodePointSource> cons = getConstructor(_sourcesByClass, cs, clz);
         if (cons == null) {
             // exception or null??
-            throw new IllegalStateException("Constructor " + cons + " cannot be called with arguments (" + obj + ", " + cs + ")");
+            throw new IllegalStateException("Constructor " + cons + " cannot be called with arguments (" + in + ", " + cs + ")");
         } else {
-            return createWrapper(cons, obj, cs);
+            return createWrapper(cons, in, cs);
         }
     }
 
@@ -247,12 +242,6 @@ public final class Provider implements CodePointProvider {
         return new ReaderSource(obj, cs);
     }
 
-    /**
-     *
-     * @param obj the value of obj
-     * @param cs the value of cs
-     * @throws IOException
-     */
     @Override
     public CodePointSource getSource(Reader obj, Charset cs) throws IOException {
         return new ReaderSource(obj, cs);
@@ -265,7 +254,11 @@ public final class Provider implements CodePointProvider {
     }
 
     @Override
-    public <T> CodePointSink getSink(Class<T> clz, T obj, Charset cs) throws IOException {
+    public <T> CodePointSink getSink(Class<T> clz, T out, Charset cs) throws IOException {
+        Objects.requireNonNull(clz);
+        Objects.requireNonNull(out);
+        Objects.requireNonNull(cs);
+
         if (!_sourcesByClass.containsKey(clz)) {
             // is this the right loader?
             readConfiguration(clz.getClassLoader());
@@ -273,9 +266,9 @@ public final class Provider implements CodePointProvider {
         Constructor<? extends CodePointSink> cons = getConstructor(_sinksByClass, cs, clz);
         if (cons == null) {
             // exception or null??
-            throw new IllegalStateException("Constructor " + cons + " cannot be called with arguments (" + obj + ", " + cs + ")");
+            throw new IllegalStateException("Constructor " + cons + " cannot be called with arguments (" + out + ", " + cs + ")");
         } else {
-            return createWrapper(cons, obj, cs);
+            return createWrapper(cons, out, cs);
         }
     }
 

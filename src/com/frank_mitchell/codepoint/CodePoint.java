@@ -31,93 +31,88 @@ import java.nio.charset.Charset;
 import java.util.Objects;
 
 /**
- * Determines a {@link CodePointSource} or {@link CodePointSink} for a given
- * object.
- *
- * It uses the {@link ClassLoader}, configuration files, reflection, and a few
- * heuristics to instantiate an appropriate class. Other implementers of
- * {@link CodePointSource} and {@link CodePointSink} merely need to include in
- * the jar a UTF-8 file named {@code META-INF/codepoint/classes.conf} containing
- * the fully qualified binary names of classes implementing
- * {@link CodePointSource} or {@link CodePointSink}, separated only by
- * whitespace or comments ('#' until the end of the line).
- *
- * Sources and sinks that can only handle a restricted range of {@link Charset}s
- * must indicate which sets with {@link ForCharset} on the relevant
- * constructor(s).
+ * wraps an input or output object with an instance of {@link CodePointSource} or 
+ * {@link CodePointSink}.
+ * This class and its static methods are a facade for an instance of 
+ * {@link CodePointProvider}.
  *
  * @author Frank Mitchell
+ * 
+ * @see CodePointProvider
  */
 public class CodePoint {
     
+    /*
+     * Should load as service, but ...
+     */
     private static final CodePointProvider PROVIDER = new Provider();
 
     /**
-     *
-     * @param <T>
-     * @param obj the value of obj
-     * @param cs the value of cs
-     * @return 
-     * @throws IOException
+     * Wrap an input object with a {@link CodePointSource}.
+     * @param <T> The type of in
+     * @param in an object providing a stream of characters
+     * @param cs the {@link Charset} of characters from in
+     * @return a CodePointSource wrapping {@code in}
+     * @throws IOException if wrapping or reading in caused an exception
      */
-    public static <T> CodePointSource getSource(T obj, Charset cs) throws IOException {
-        Objects.requireNonNull(obj, "No CodePointSource for null");
-        assert(obj != null);
-        if (obj instanceof Reader) {
-            return PROVIDER.getSource((Reader)obj, cs);
+    public static <T> CodePointSource getSource(T in, Charset cs) throws IOException {
+        Objects.requireNonNull(in, "No CodePointSource for null");
+        assert(in != null);
+        if (in instanceof Reader) {
+            return PROVIDER.getSource((Reader)in, cs);
         }
-        if (obj instanceof InputStream) {
-            return PROVIDER.getSource((InputStream)obj, cs);
+        if (in instanceof InputStream) {
+            return PROVIDER.getSource((InputStream)in, cs);
         }
-        if (obj instanceof CharSequence) {
-            return PROVIDER.getSource((CharSequence)obj, cs);
+        if (in instanceof CharSequence) {
+            return PROVIDER.getSource((CharSequence)in, cs);
         }
-        return PROVIDER.getSource((Class<T>) obj.getClass(), obj, cs);
+        return PROVIDER.getSource((Class<T>) in.getClass(), in, cs);
     }
 
     /**
-     *
-     * @param <T>
-     * @param clz the value of clz
-     * @param obj the value of obj
-     * @param cs the value of cs
-     * @return 
-     * @throws IOException
+     * Wrap an input object with a {@link CodePointSource}.
+     * @param <T> The type of in
+     * @param clz the type of in when looking for a suitable wrapper.
+     * @param in an object providing a stream of characters
+     * @param cs the {@link Charset} of characters from in
+     * @return a CodePointSource wrapping {@code in}
+     * @throws IOException if wrapping or reading in caused an exception
      */
-    public static <T> CodePointSource getSource(Class<T> clz, T obj, Charset cs) throws IOException {
-        return PROVIDER.getSource(clz, obj, cs);
+    public static <T> CodePointSource getSource(Class<T> clz, T in, Charset cs) throws IOException {
+        return PROVIDER.getSource(clz, in, cs);
     }
 
     /**
-     *
-     * @param <T>
-     * @param obj the value of obj
-     * @param cs the value of cs
-     * @return 
-     * @throws IOException
+     * Wrap an output object with a {@link CodePointSink}.
+     * @param <T> The type of out
+     * @param out an object accepting a stream of characters
+     * @param cs the {@link Charset} of characters from out
+     * @return a CodePointSink wrapping {@code out}
+     * @throws IOException if wrapping or writing to out caused an exception
      */
-    public static <T> CodePointSink getSink(T obj, Charset cs) throws IOException {
-        Objects.requireNonNull(obj, "No CodePointSink for null");
-        assert(obj != null);
-        if (obj instanceof Writer) {
-            return PROVIDER.getSink((Writer)obj, cs);
+    public static <T> CodePointSink getSink(T out, Charset cs) throws IOException {
+        Objects.requireNonNull(out, "No CodePointSink for null");
+        assert(out != null);
+        if (out instanceof Writer) {
+            return PROVIDER.getSink((Writer)out, cs);
         }
-        if (obj instanceof OutputStream) {
-            return PROVIDER.getSink((OutputStream)obj, cs);
+        if (out instanceof OutputStream) {
+            return PROVIDER.getSink((OutputStream)out, cs);
         }
-        return PROVIDER.getSink((Class<T>) obj.getClass(), obj, cs);
+        return PROVIDER.getSink((Class<T>) out.getClass(), out, cs);
     }
 
     /**
-     *
-     * @param <T>
-     * @param clz the value of clz
-     * @param obj the value of obj
-     * @param cs the value of cs
-     * @return 
-     * @throws IOException
+     * Wrap an output object with a {@link CodePointSink}.
+     * @param <T> The type of out
+     * @param clz the type of out when looking for a suitable wrapper.
+     * @param out an object accepting a stream of characters
+     * @param cs the {@link Charset} of characters from out
+     * @return a CodePointSink wrapping {@code out}
+     * @throws IOException if wrapping or writing to out caused an exception
      */
-    public static <T> CodePointSink getSink(Class<T> clz, T obj, Charset cs) throws IOException {
-        return PROVIDER.getSink(clz, obj, cs);
+    public static <T> CodePointSink getSink(Class<T> clz, T out, Charset cs) throws IOException {
+        return PROVIDER.getSink(clz, out, cs);
     }
 }
