@@ -24,10 +24,6 @@
 package com.frank_mitchell.codepoint;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Reader;
-import java.io.Writer;
 import java.nio.charset.Charset;
 
 /**
@@ -64,26 +60,6 @@ public interface CodePointProvider {
     <T> CodePointSink getSink(Class<T> clz, T out, Charset cs) throws IOException;
 
     /**
-     * Wrap an output object with a {@link CodePointSink}.
-     * @param out an object accepting a stream of characters
-     * @param cs the {@link Charset} of characters from {@code out}
-     * @return a CodePointSink wrapping {@code out}
-     * @throws IOException if wrapping or writing to {@code out} caused an exception
-     */
-    @Deprecated
-    CodePointSink getSink(OutputStream out, Charset cs) throws IOException;
-
-    /**
-     * Wrap an output object with a {@link CodePointSink}.
-     * @param out an object accepting a stream of characters
-     * @param cs the {@link Charset} of characters from {@code out}
-     * @return a CodePointSink wrapping {@code out}
-     * @throws IOException if wrapping or writing to {@code out} caused an exception
-     */
-    @Deprecated
-    CodePointSink getSink(Writer out, Charset cs) throws IOException;
-
-    /**
      * Wrap an input object with a {@link CodePointSource}.
      * @param <T> The type of {@code in}
      * @param clz the type of {@code in} when looking for a suitable wrapper.
@@ -93,34 +69,4 @@ public interface CodePointProvider {
      * @throws IOException if wrapping or reading from {@code in} caused an exception
      */
     <T> CodePointSource getSource(Class<T> clz, T in, Charset cs) throws IOException;
-
-    /**
-     * Wrap an input object with a {@link CodePointSource}.
-     * @param in an object providing a stream of characters
-     * @param cs the {@link Charset} of characters from {@code in}
-     * @return a CodePointSource wrapping {@code in}
-     * @throws IOException if wrapping or reading from {@code in} caused an exception
-     */
-    @Deprecated
-    CodePointSource getSource(InputStream in, Charset cs) throws IOException;
-
-    /**
-     * Wrap an input object with a {@link CodePointSource}.
-     * @param in an object providing a stream of characters
-     * @param cs the {@link Charset} of characters from {@code in}
-     * @return a CodePointSource wrapping {@code in}
-     * @throws IOException if wrapping or reading from {@code in} caused an exception
-     */
-    @Deprecated
-    CodePointSource getSource(Reader in, Charset cs) throws IOException;
-
-    /**
-     * Wrap an input object with a {@link CodePointSource}.
-     * @param in an object providing a stream of characters
-     * @param cs the {@link Charset} of characters from {@code in}
-     * @return a CodePointSource wrapping {@code in}
-     * @throws IOException if wrapping or reading from {@code in} caused an exception
-     */
-    @Deprecated
-    CodePointSource getSource(CharSequence in, Charset cs) throws IOException;
 }

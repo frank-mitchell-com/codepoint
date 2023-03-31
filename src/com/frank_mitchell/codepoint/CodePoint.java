@@ -23,25 +23,21 @@ package com.frank_mitchell.codepoint;
 
 import com.frank_mitchell.codepoint.spi.Provider;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Reader;
-import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.Objects;
 
 /**
- * wraps an input or output object with an instance of {@link CodePointSource} or 
+ * wraps an input or output object with an instance of {@link CodePointSource} or
  * {@link CodePointSink}.
- * This class and its static methods are a facade for an instance of 
+ * This class and its static methods are a facade for an instance of
  * {@link CodePointProvider}.
  *
  * @author Frank Mitchell
- * 
+ *
  * @see CodePointProvider
  */
 public class CodePoint {
-    
+
     /*
      * Should load as service, but ...
      */
@@ -58,15 +54,6 @@ public class CodePoint {
     public static <T> CodePointSource getSource(T in, Charset cs) throws IOException {
         Objects.requireNonNull(in, "No CodePointSource for null");
         assert(in != null);
-        if (in instanceof Reader) {
-            return PROVIDER.getSource((Reader)in, cs);
-        }
-        if (in instanceof InputStream) {
-            return PROVIDER.getSource((InputStream)in, cs);
-        }
-        if (in instanceof CharSequence) {
-            return PROVIDER.getSource((CharSequence)in, cs);
-        }
         return PROVIDER.getSource((Class<T>) in.getClass(), in, cs);
     }
 
@@ -94,12 +81,6 @@ public class CodePoint {
     public static <T> CodePointSink getSink(T out, Charset cs) throws IOException {
         Objects.requireNonNull(out, "No CodePointSink for null");
         assert(out != null);
-        if (out instanceof Writer) {
-            return PROVIDER.getSink((Writer)out, cs);
-        }
-        if (out instanceof OutputStream) {
-            return PROVIDER.getSink((OutputStream)out, cs);
-        }
         return PROVIDER.getSink((Class<T>) out.getClass(), out, cs);
     }
 

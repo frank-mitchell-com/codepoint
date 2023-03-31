@@ -24,11 +24,12 @@
 package com.frank_mitchell.codepoint.spi;
 
 import com.frank_mitchell.codepoint.CodePointSource;
+import com.frank_mitchell.codepoint.ForCharsets;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import com.frank_mitchell.codepoint.ForCharsets;
+import java.util.Objects;
 
 /**
  * A wrapper for a stream of ASCII or UTF-8 bytes.
@@ -45,9 +46,9 @@ class AsciiSource implements CodePointSource {
      *
      * @param in the Input Stream.
      */
-    @ForCharsets(names={"ASCII","UTF-8"})
+    @ForCharsets(names={"ASCII"})
     public AsciiSource(InputStream in) {
-        // TODO: require in != null
+        Objects.requireNonNull(in);
         _input = in;
     }
 

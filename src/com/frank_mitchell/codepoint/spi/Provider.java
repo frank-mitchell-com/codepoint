@@ -38,9 +38,11 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -57,6 +59,11 @@ import java.util.logging.Logger;
 public final class Provider implements CodePointProvider {
 
     private static final Class<Charset> CHARSET_CLASS = Charset.class;
+
+    /**
+     * Hardcode defaults for common sources and sinks (compile-time).
+     */
+    private static final boolean HARDCODE_DEFAULTS = false;
 
     /**
      * Map of an input class to a CodePointSource implementation.
@@ -92,13 +99,13 @@ public final class Provider implements CodePointProvider {
     }
 
     private void initSourcesAndSinksTables() {
-        //collectConstructors(AsciiSource.class, _sourcesByClass);
+        collectConstructors(AsciiSource.class, _sourcesByClass);
         //collectConstructors(ByteBufferSource.class, _sourcesByClass);
         collectConstructors(CharSequenceSource.class, _sourcesByClass);
         collectConstructors(ReaderSource.class, _sourcesByClass);
 
         //collectConstructors(ByteBufferSink.class, _sinksByClass);
-        //collectConstructors(StringBufferSink.class, _sinksByClass);
+        collectConstructors(StringBufferSink.class, _sinksByClass);
         collectConstructors(WriterSink.class, _sinksByClass);
     }
 
@@ -180,8 +187,41 @@ public final class Provider implements CodePointProvider {
         return css;
     }
 
-    private <S, T> Constructor<? extends S> getConstructor(Map<Class<?>, Set<ConstructorRecord<S>>> map, Charset cs, Class<T> type) throws IOException {
-        Set<ConstructorRecord<S>> recset = map.get(type);
+    private <S,T> Set<ConstructorRecord<S>> getTypeInMap(Map<Class<?>, Set<ConstructorRecord<S>>> map, Class<T> type) {
+        Set<ConstructorRecord<S>> result = null;
+        if (type == null) {
+            return null;
+        }
+        if (map.containsKey(type)) {
+            result = map.get(type);
+        } else if (!type.equals(Object.class)) {
+            result = getTypeInMap(map, type.getSuperclass());
+            if (result == null) {
+                for (Class<?> iface : type.getInterfaces()) {
+                    result = getTypeInMap(map, iface);
+                    if (result != null) {
+                        break;
+                    }
+                }
+            }
+            // Add to map so we don't have to do this again.
+            if (result != null) {
+                map.put(type, result);
+            }
+        }
+        return result;
+    }
+
+    private <S, T> Constructor<? extends S> getConstructor(Map<Class<?>, Set<ConstructorRecord<S>>> map, Class<T> type, Charset cs) throws IOException {
+        if (!map.containsKey(type)) {
+            // is this the right loader?
+            ClassLoader loader = type.getClassLoader();
+            if (loader != null) {
+                readConfiguration(loader);
+            }
+        }
+
+        Set<ConstructorRecord<S>> recset = getTypeInMap(map, type);
         if (recset == null) {
             // What *do* we do if we have nothing?
             return null;
@@ -218,39 +258,28 @@ public final class Provider implements CodePointProvider {
         Objects.requireNonNull(in);
         Objects.requireNonNull(cs);
 
-        if (!_sourcesByClass.containsKey(clz)) {
-            // is this the right loader?
-            readConfiguration(clz.getClassLoader());
+        if (HARDCODE_DEFAULTS) {
+            if (in instanceof Reader) {
+                return new ReaderSource((Reader) in, cs);
+            }
+            if (in instanceof InputStream) {
+                if (cs.equals(StandardCharsets.US_ASCII)) {
+                    return new AsciiSource((InputStream) in);
+                }
+                return new ReaderSource((InputStream) in, cs);
+            }
+            if (in instanceof CharSequence) {
+                return new CharSequenceSource((CharSequence) in);
+            }
         }
-        Constructor<? extends CodePointSource> cons = getConstructor(_sourcesByClass, cs, clz);
+
+        Constructor<? extends CodePointSource> cons = getConstructor(_sourcesByClass, clz, cs);
         if (cons == null) {
             // exception or null??
-            throw new IllegalStateException("Constructor " + cons + " cannot be called with arguments (" + in + ", " + cs + ")");
+            throw new IllegalStateException("No constructor for arguments (" + clz + ", \"" + cs + "\")");
         } else {
             return createWrapper(cons, in, cs);
         }
-    }
-
-    /**
-     *
-     * @param obj the value of obj
-     * @param cs the value of cs
-     * @throws IOException
-     */
-    @Override
-    public CodePointSource getSource(InputStream obj, Charset cs) throws IOException {
-        return new ReaderSource(obj, cs);
-    }
-
-    @Override
-    public CodePointSource getSource(Reader obj, Charset cs) throws IOException {
-        return new ReaderSource(obj, cs);
-    }
-
-    @Override
-    public CodePointSource getSource(CharSequence obj, Charset cs) throws IOException {
-        // assume cs is "UTF-16" or "UTF-16BE"
-        return new CharSequenceSource(obj);
     }
 
     @Override
@@ -259,34 +288,50 @@ public final class Provider implements CodePointProvider {
         Objects.requireNonNull(out);
         Objects.requireNonNull(cs);
 
-        if (!_sourcesByClass.containsKey(clz)) {
-            // is this the right loader?
-            readConfiguration(clz.getClassLoader());
+        if (HARDCODE_DEFAULTS) {
+            if (out instanceof Writer) {
+                return new WriterSink((Writer) out, cs);
+            }
+            if (out instanceof OutputStream) {
+                return new WriterSink((OutputStream) out, cs);
+            }
+            if (out instanceof StringBuffer) {
+                return new StringBufferSink((StringBuffer) out, cs);
+            }
         }
-        Constructor<? extends CodePointSink> cons = getConstructor(_sinksByClass, cs, clz);
+
+        Constructor<? extends CodePointSink> cons = getConstructor(_sinksByClass, clz, cs);
         if (cons == null) {
-            // exception or null??
-            throw new IllegalStateException("Constructor " + cons + " cannot be called with arguments (" + out + ", " + cs + ")");
+            throw new IllegalStateException("No constructor for arguments (" + clz + ", \"" + cs + "\")");
         } else {
             return createWrapper(cons, out, cs);
         }
     }
 
-    @Override
-    public CodePointSink getSink(OutputStream obj, Charset cs) throws IOException {
-        return new WriterSink(obj, cs);
-    }
-
-    @Override
-    public CodePointSink getSink(Writer obj, Charset cs) throws IOException {
-        return new WriterSink(obj, cs);
-    }
-
-    private void readConfiguration(ClassLoader loader) throws SecurityException, IOException {
+    void readConfiguration(ClassLoader loader) throws SecurityException, IOException {
         InputStream instream = loader.getResourceAsStream(CodePointProvider.CONFIG_FILE);
-        LineNumberReader reader = new LineNumberReader(new InputStreamReader(instream, StandardCharsets.UTF_8));
-        String line = reader.readLine();
-        while (line != null) {
+
+        for (String s : readConfigurationStream(instream)) {
+            try {
+                Class<?> clz = loader.loadClass(s);
+                if (CodePointSource.class.isAssignableFrom(clz)) {
+                    collectConstructors(clz, _sourcesByClass);
+                }
+                if (CodePointSink.class.isAssignableFrom(clz)) {
+                    collectConstructors(clz, _sinksByClass);
+                }
+            } catch (ClassNotFoundException e) {
+                log("Loading", s, e);
+            }
+        }
+
+    }
+
+    List<String> readConfigurationStream(InputStream instream) throws IOException {
+        final InputStreamReader r = new InputStreamReader(instream, StandardCharsets.UTF_8);
+        final LineNumberReader lr = new LineNumberReader(r);
+        List<String> result = new ArrayList<>();
+        for (String line = lr.readLine(); line != null; line = lr.readLine()) {
             int comment = line.indexOf('#');
             if (comment > 0) {
                 line = line.substring(0, comment);
@@ -296,19 +341,9 @@ public final class Provider implements CodePointProvider {
                 if (s.length() == 0) {
                     continue;
                 }
-                try {
-                    Class<?> clz = loader.loadClass(s);
-                    if (CodePointSource.class.isAssignableFrom(clz)) {
-                        collectConstructors(clz, _sourcesByClass);
-                    }
-                    if (CodePointSink.class.isAssignableFrom(clz)) {
-                        collectConstructors(clz, _sinksByClass);
-                    }
-                } catch (ClassNotFoundException e) {
-                    log("Loading", s, e);
-                }
+                result.add(s);
             }
-            line = reader.readLine();
         }
+        return result;
     }
 }
