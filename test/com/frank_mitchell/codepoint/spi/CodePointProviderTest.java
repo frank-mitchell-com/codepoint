@@ -149,7 +149,7 @@ public class CodePointProviderTest {
         }
         assertEquals(TEXT, output.toString());
     }
-    
+
     @Test
     public void testGetStringBufferSink() throws IOException {
         final Charset cs = StandardCharsets.UTF_16;

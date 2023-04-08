@@ -1,7 +1,3 @@
-## Build
-
-- Fix build.xml
-
 ## Interface
 
 - Add more bulk read methods to CodePointSource, implemented through
@@ -11,19 +7,15 @@
 
 ## Implementation
 
-- Implement the service and reflection code for CodePoint.
-  (I mean so that one can prove it works.)
-  Right now it's just hardcoded to serve JSONPP.
-
 - Get ByteBufferSource and ByteBufferSink working, once I understand
   ByteBuffers better.
 
-- Add Sources and Sinks for CharBuffers and IntBuffers?
+- Load existing implementations and charset mappings from config file.
 
-- Implement CodePointSequence interface if it exists.
+- Get config files from other jars/classloaders for new sources and sinks.
 
-- Look at Java 17 and Java 19 for additional input and output classes.
-  (Maybe some that makes this whole library obsolete?)
+- Load CodePointProvider as a service.
+  - Move class loading machinery elsewhere?
 
 ## Testing
 

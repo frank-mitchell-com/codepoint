@@ -39,14 +39,17 @@ import java.nio.charset.Charset;
  * whitespace or comments ('#' until the end of the line).
  *
  * Sources and sinks that can only handle a restricted range of {@link Charset}s
- * must indicate which sets with {@link ForCharset} on the relevant
+ * must indicate which sets with {@link ForCharsets} on the relevant
  * constructor(s).
  *
  * @author Frank Mitchell
  */
 public interface CodePointProvider {
 
-    public static final String CONFIG_FILE = "/META-INF/codepoint.conf";
+    /**
+     * Name of the resource from which to load new sources and sinks.
+     */
+    public static final String CONFIG_FILE = "/codepoint.conf";
 
     /**
      * Wrap an output object with a {@link CodePointSink}.

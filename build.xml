@@ -1,50 +1,73 @@
 <?xml version="1.0"?>
 <project name="Codepoint - Unicode input and output" default="all">
 
+    <property name="src" location="src" />
+    <property name="test" location="test" />
+
+    <property name="build.dir" location="build" />
+    <property name="dist.dir" location="dist" />
+    <property name="doc.build.dir" location="${dist.dir}/javadoc" />
+    <property name="doc.jar.name" location="${dist.dir}/codepoint-javadoc.jar" />
+    <property name="jar.build.dir" location="${dist.dir}" />
+    <property name="jar.name" location="${jar.build.dir}/codepoint.jar" />
+    <property name="src.build.dir" location="${build.dir}/classes" />
+    <property name="test.build.dir" location="${build.dir}/test/classes" />
+    <property name="test.lib.junit" location="lib/junit_4/junit-4.13.2.jar"/>
+    <property name="test.lib.hamcrest" location="lib/hamcrest/hamcrest-core-1.3.jar"/>
+
   <target name="all" depends="test,jar,docjar" />
 
   <target name="compile">
-    <mkdir dir="build/classes" />
-    <javac srcdir="src" destdir="build/classes" debug="on"
-    source="1.8" />
+      <mkdir dir="${src.build.dir}" />
+      <javac debug="on" source="1.8" includeantruntime="false"
+            srcdir="${src}" destdir="${src.build.dir}"/>
   </target>
 
   <target name="test" depends="compile">
-    <mkdir dir="build/test" />
-    <javac srcdir="test" destdir="build/test"
-    classpath="build/classes/:lib/junit-4.13.2.jar:lib/hamcrest-1.3.jar"
-    debug="on" source="1.8" />
-    <junit>
-      <classpath>
-        <pathelement location="build/class/" />
-        <pathelement location="build/test/" />
-      </classpath>
-      <batchtest fork="yes" todir="build/reports">
-        <fileset dir="test">
-          <include name="**/*Test*.java" />
-          <exclude name="**/AllTests.java" />
-        </fileset>
-      </batchtest>
-    </junit>
+      <mkdir dir="${test.build.dir}" />
+      <javac debug="on" source="1.8" includeantruntime="false"
+                srcdir="${test}" destdir="${test.build.dir}">
+            <classpath>
+                <pathelement location="${test.lib.junit}"/>
+                <pathelement location="${test.lib.hamcrest}"/>
+                <pathelement location="${src.build.dir}"/>
+            </classpath>
+      </javac>
+      <junit printsummary="yes" fork="yes" haltonfailure="yes">
+        <classpath>
+          <pathelement location="${test.build.dir}" />
+          <pathelement location="${src.build.dir}"/>
+          <pathelement location="${test.lib.junit}"/>
+          <pathelement location="${test.lib.hamcrest}"/>
+        </classpath>
+        <batchtest fork="yes" todir="build/reports">
+            <fileset dir="test">
+                <include name="**/*Test*.java" />
+                <exclude name="**/AllTests.java" />
+            </fileset>
+        </batchtest>
+      </junit>
   </target>
 
-  <target name="jar" depends="compile,test">
-    <echo>TODO: jar up build/classes/**.class into
-    dist/jsonpp.jar</echo>
+  <target name="jar" depends="compile">
+      <jar destfile="${jar.name}" basedir="${src.build.dir}">
+          <service type="com.frank_mitchell.codepoint.CodePointProvider" 
+                    provider="com.frank_mitchell.codepoint.spi.Provider"/>
+        </jar>
   </target>
 
   <target name="doc">
-    <echo>TODO: generate documentation in build/javadoc</echo>
+      <javadoc sourcepath="${src}" destdir="${doc.build.dir}">
+      </javadoc>
   </target>
 
   <target name="docjar" depends="doc">
-    <echo>TODO: jar up build/javadoc/** into
-    dist/jsonpp-javadoc.jar</echo>
+      <jar destfile="${doc.jar.name}" basedir="${doc.build.dir}"/>
   </target>
 
   <target name="clean">
-    <delete includeEmptyDirs="true">
-      <fileset dir="bin" />
+    <delete includeEmptyDirs="true" failonerror="false">
+      <fileset dir="bin"/>
       <fileset dir="build" />
       <fileset dir="dist" />
     </delete>

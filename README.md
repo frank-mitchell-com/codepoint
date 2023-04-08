@@ -5,17 +5,12 @@ processing Unicode code points.  I originally wrote these classes for
 [**jsonpp**](https://github.com/frank-mitchell-com/jsonpp), but
 I thought they'd be generally useful.  For me, at least.
 
-Java 17 or 19 may have solved this problem. As I'm working in Java 8 or 9
-for reasons I can't use them. (Meaning I don't know what they are. I'm still
-catching up.)
-
 
 ## Building Codepoint
 
-The project includes a project file for NetBeans. If you use Eclipse,
-`ant -f nbbuild.xml' also works from the command line.
-
-There's also a non-functional 'build.xml'. Don't use that (yet).
+The project includes a functioning `build.xml`.
+Simply run **ant** from the command line or Eclipse.
+The project includes project files for NetBeans.
 
 It's a bunch of `.java` files. It's not that hard.
 

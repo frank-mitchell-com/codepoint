@@ -53,8 +53,11 @@ import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 /**
+ * The default implementation of a {@link CodePointProvider}.
+ * Only {@link com.frank_mitchell.codepoint.CodePoint} should create an
+ * instance of this class under normal circumstances.
  *
- * @author fmitchell
+ * @author Frank Mitchell
  */
 public final class Provider implements CodePointProvider {
 
@@ -82,6 +85,9 @@ public final class Provider implements CodePointProvider {
         return new CopyOnWriteArraySet<>(Arrays.asList(charsets));
     }
 
+    /**
+     * Default and only constructor.
+     */
     public Provider() {
         initImpliesTable();
         initSourcesAndSinksTables();

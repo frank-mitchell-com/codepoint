@@ -47,7 +47,7 @@ public interface CodePointSource extends Closeable {
     /**
      * Read the current code point after the last call to {@link #next()}.
      *
-     * @return current code point.
+     * @return the current (last read) code point.
      */
     int getCodePoint();
 
@@ -58,14 +58,14 @@ public interface CodePointSource extends Closeable {
      *
      * @return whether this object has a next code point.
      *
-     * @throws java.io.IOException if read-ahead throws an exception
+     * @throws IOException if read-ahead throws an exception.
      */
     boolean hasNext() throws IOException;
 
     /**
      * Get the next code point.
      *
-     * @throws IOException
+     * @throws IOException if reading throws an exception.
      */
     void next() throws IOException;
 

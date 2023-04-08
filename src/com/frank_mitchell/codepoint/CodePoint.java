@@ -27,8 +27,8 @@ import java.nio.charset.Charset;
 import java.util.Objects;
 
 /**
- * wraps an input or output object with an instance of {@link CodePointSource} or
- * {@link CodePointSink}.
+ * Wraps an input or output object with an instance of {@link CodePointSource} 
+ * or {@link CodePointSink}.
  * This class and its static methods are a facade for an instance of
  * {@link CodePointProvider}.
  *
@@ -42,6 +42,9 @@ public class CodePoint {
      * Should load as service, but ...
      */
     private static final CodePointProvider PROVIDER = new Provider();
+
+    private CodePoint() {
+    }
 
     /**
      * Wrap an input object with a {@link CodePointSource}.
