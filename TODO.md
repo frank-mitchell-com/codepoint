@@ -3,7 +3,6 @@
 - Add more bulk read methods to CodePointSource, implemented through
   `default` methods and/or an abstract class.
 
-- CodePointSequence interface, parallel to CharSequence?
 
 ## Implementation
 
@@ -17,9 +16,11 @@
 - Load CodePointProvider as a service.
   - Move class loading machinery elsewhere?
 
+
 ## Testing
 
 - Add more tests for possible hiccups and error conditions.
+
 
 ## Documentation
 

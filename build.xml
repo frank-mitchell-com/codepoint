@@ -3,74 +3,88 @@
 
     <property name="src" location="src" />
     <property name="test" location="test" />
+    <property name="lib" location="lib" />
+    <property name="lib.codepoint" location="${lib}/codepoint.jar" />
+    <property name="lib.junit.dir" location="${lib}/junit_4" />
+    <property name="lib.hamcrest.dir" location="${lib}/hamcrest" />
+
+    <property name="src.version" value="1.8" />
 
     <property name="build.dir" location="build" />
     <property name="dist.dir" location="dist" />
     <property name="doc.build.dir" location="${dist.dir}/javadoc" />
-    <property name="doc.jar.name" location="${dist.dir}/codepoint-javadoc.jar" />
+    <property name="doc.jar.name"
+        location="${dist.dir}/codepoint-javadoc.jar" />
     <property name="jar.build.dir" location="${dist.dir}" />
     <property name="jar.name" location="${jar.build.dir}/codepoint.jar" />
     <property name="src.build.dir" location="${build.dir}/classes" />
     <property name="test.build.dir" location="${build.dir}/test/classes" />
-    <property name="test.lib.junit" location="lib/junit_4/junit-4.13.2.jar"/>
-    <property name="test.lib.hamcrest" location="lib/hamcrest/hamcrest-core-1.3.jar"/>
+    <property name="test.report.dir" location="${build.dir}/test/reports" />
 
-  <target name="all" depends="test,jar,docjar" />
+    <path id="test.classpath">
+        <pathelement location="${src.build.dir}" />
+        <fileset dir="${lib.junit.dir}">
+            <include name="*.jar"/>
+        </fileset>
+        <fileset dir="${lib.hamcrest.dir}">
+            <include name="*.jar"/>
+        </fileset>
+        <pathelement location="${test.build.dir}" />
+    </path>
 
-  <target name="compile">
-      <mkdir dir="${src.build.dir}" />
-      <javac debug="on" source="1.8" includeantruntime="false"
-            srcdir="${src}" destdir="${src.build.dir}"/>
-  </target>
+    <target name="all" depends="test,jar,docjar" />
 
-  <target name="test" depends="compile">
-      <mkdir dir="${test.build.dir}" />
-      <javac debug="on" source="1.8" includeantruntime="false"
-                srcdir="${test}" destdir="${test.build.dir}">
-            <classpath>
-                <pathelement location="${test.lib.junit}"/>
-                <pathelement location="${test.lib.hamcrest}"/>
-                <pathelement location="${src.build.dir}"/>
-            </classpath>
-      </javac>
-      <junit printsummary="yes" fork="yes" haltonfailure="yes">
-        <classpath>
-          <pathelement location="${test.build.dir}" />
-          <pathelement location="${src.build.dir}"/>
-          <pathelement location="${test.lib.junit}"/>
-          <pathelement location="${test.lib.hamcrest}"/>
-        </classpath>
-        <batchtest fork="yes" todir="build/reports">
-            <fileset dir="test">
-                <include name="**/*Test*.java" />
-                <exclude name="**/AllTests.java" />
-            </fileset>
-        </batchtest>
-      </junit>
-  </target>
+    <target name="compile">
+        <mkdir dir="${src.build.dir}" />
+        <javac debug="on" source="${src.version}" includeantruntime="false"
+            srcdir="${src}" destdir="${src.build.dir}">
+        </javac>
+    </target>
 
-  <target name="jar" depends="compile">
-      <jar destfile="${jar.name}" basedir="${src.build.dir}">
-          <service type="com.frank_mitchell.codepoint.CodePointProvider" 
-                    provider="com.frank_mitchell.codepoint.spi.Provider"/>
+    <target name="testcompile" depends="compile">
+        <delete dir="${test.build.dir}" quiet="true" />
+        <mkdir dir="${test.build.dir}" />
+        <javac debug="on" source="${src.version}" includeantruntime="false"
+            srcdir="${test}" destdir="${test.build.dir}">
+            <classpath refid="test.classpath" />
+        </javac>
+    </target>
+
+    <target name="test" depends="compile,testcompile">
+        <mkdir dir="${test.report.dir}" />
+        <junit printsummary="yes" fork="yes" haltonfailure="yes">
+            <classpath refid="test.classpath" />
+            <formatter type="plain" />
+            <batchtest fork="yes" todir="${test.report.dir}">
+                <fileset dir="test">
+                    <include name="**/*Test*.java" />
+                    <exclude name="**/AllTests.java" />
+                </fileset>
+            </batchtest>
+        </junit>
+    </target>
+
+    <target name="jar" depends="compile">
+        <jar destfile="${jar.name}" basedir="${src.build.dir}">
+            <service type="com.frank_mitchell.codepoint.CodePointProvider" 
+                provider="com.frank_mitchell.codepoint.spi.Provider"/>
         </jar>
-  </target>
+    </target>
 
-  <target name="doc">
-      <javadoc sourcepath="${src}" destdir="${doc.build.dir}">
-      </javadoc>
-  </target>
+    <target name="doc">
+        <javadoc sourcepath="${src}" destdir="${doc.build.dir}" />
+    </target>
 
-  <target name="docjar" depends="doc">
-      <jar destfile="${doc.jar.name}" basedir="${doc.build.dir}"/>
-  </target>
+    <target name="docjar" depends="doc">
+        <jar destfile="${doc.jar.name}" basedir="${doc.build.dir}" />
+    </target>
 
-  <target name="clean">
-    <delete includeEmptyDirs="true" failonerror="false">
-      <fileset dir="bin"/>
-      <fileset dir="build" />
-      <fileset dir="dist" />
-    </delete>
-  </target>
+    <target name="clean">
+        <delete includeEmptyDirs="true" failonerror="false">
+            <fileset dir="bin" />
+            <fileset dir="build" />
+            <fileset dir="dist" />
+        </delete>
+    </target>
 
 </project>
