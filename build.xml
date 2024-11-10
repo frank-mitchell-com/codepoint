@@ -32,17 +32,21 @@
 
     <target name="compile">
         <mkdir dir="${src.build.dir}" />
-        <javac debug="on" source="${src.version}" includeantruntime="false"
+        <javac debug="on" includeantruntime="false"
+            release="${src.version}"
             srcdir="${src}" destdir="${src.build.dir}">
+            <compilerarg value="-Xlint" /> 
         </javac>
     </target>
 
     <target name="testcompile" depends="compile">
         <delete dir="${test.build.dir}" quiet="true" />
         <mkdir dir="${test.build.dir}" />
-        <javac debug="on" source="${src.version}" includeantruntime="false"
+        <javac debug="on" includeantruntime="false"
+            release="${src.version}"
             srcdir="${test}" destdir="${test.build.dir}">
             <classpath refid="test.classpath" />
+            <compilerarg value="-Xlint" /> 
         </javac>
     </target>
 

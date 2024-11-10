@@ -110,6 +110,7 @@ public class CodePointProviderTest {
         assertSourceText(TEXT, result);
     }
 
+    @SuppressWarnings("unchecked")
     static <T> Class<T> getClassFor(T obj) {
         assertNotNull(obj);
         return (Class<T>)obj.getClass();

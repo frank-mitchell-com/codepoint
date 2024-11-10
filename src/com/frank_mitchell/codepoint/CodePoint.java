@@ -46,6 +46,12 @@ public class CodePoint {
     private CodePoint() {
     }
 
+    @SuppressWarnings("unchecked")
+    private static <T> Class<T> getClassFor(T obj) {
+        // Not sure how to tell the compiler that the class of T is Class<T>.
+        return (Class<T>)obj.getClass();
+    }
+
     /**
      * Wrap an input object with a {@link CodePointSource}.
      * @param <T> The type of in
@@ -57,7 +63,7 @@ public class CodePoint {
     public static <T> CodePointSource getSource(T in, Charset cs) throws IOException {
         Objects.requireNonNull(in, "No CodePointSource for null");
         assert(in != null);
-        return PROVIDER.getSource((Class<T>) in.getClass(), in, cs);
+        return PROVIDER.getSource(getClassFor(in), in, cs);
     }
 
     /**
@@ -84,7 +90,7 @@ public class CodePoint {
     public static <T> CodePointSink getSink(T out, Charset cs) throws IOException {
         Objects.requireNonNull(out, "No CodePointSink for null");
         assert(out != null);
-        return PROVIDER.getSink((Class<T>) out.getClass(), out, cs);
+        return PROVIDER.getSink(getClassFor(out), out, cs);
     }
 
     /**
